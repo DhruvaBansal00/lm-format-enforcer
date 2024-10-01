@@ -15,6 +15,8 @@ except ImportError:
 from ..characterlevelparser import CharacterLevelParser
 from ..tokenenforcer import TokenEnforcer, TokenEnforcerTokenizerData
 from ..analyzer import FormatEnforcerAnalyzer
+import logging
+logger = logging.getLogger(__name__)
 
 class LogitsSaverWarper(LogitsWarper):
     def __init__(self, analyzer: FormatEnforcerAnalyzer) -> None:
@@ -118,6 +120,7 @@ def generate_enforced(model: AutoModelForCausalLM,
     # We do some internals hacking in order to extract the data needed for diagnostics. If we weren't asked for them,
     # we are better off simply using prefix_allowed_tokens_fn parameter.
     should_run_in_advanced_mode = return_dict_in_generate and output_scores and support_diagnostics
+    logger.exception(f"should_run_in_advanced_mode: {should_run_in_advanced_mode} return_dict_in_generate: {return_dict_in_generate} output_scores: {output_scores} support_diagnostics: {support_diagnostics}")
 
     if should_run_in_advanced_mode:
         analyzer = FormatEnforcerAnalyzer(transformers_filter_allowed_tokens.token_enforcer)
@@ -131,6 +134,7 @@ def generate_enforced(model: AutoModelForCausalLM,
             logits_saver.unreplace_logits_warper()
 
         df_dict = analyzer.generate_report_dict(output['sequences'][0].tolist())
+        logger.exception(f"df_dict: {df_dict}")
         output.enforced_scores = df_dict
     else:
         output = model.generate(**kwargs, prefix_allowed_tokens_fn=transformers_filter_allowed_tokens)
