@@ -112,8 +112,8 @@ def generate_enforced(model: AutoModelForCausalLM,
     is_multi_inputs = kwargs['input_ids'].shape[0] > 1
     is_multi_beams = kwargs.get('num_beams', 1) > 1
     support_diagnostics = not (is_multi_inputs or is_multi_beams)  # TODO: Support diagnostics in these cases as well.
-    return_dict_in_generate = kwargs.get('return_dict_in_generate', False)
-    output_scores = kwargs.get('output_scores', None)
+    return_dict_in_generate = kwargs.get('return_dict_in_generate', True)
+    output_scores = kwargs.get('output_scores', True)
 
     # We do some internals hacking in order to extract the data needed for diagnostics. If we weren't asked for them,
     # we are better off simply using prefix_allowed_tokens_fn parameter.
